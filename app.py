@@ -43,6 +43,7 @@ TOKENIZER_PATH = os.path.join(os.getcwd(), 'models',
                               TOKENIZER_VERSION)  # path vers le tokenizer
 with open(TOKENIZER_PATH, 'rb') as handle:
     tokenizer = pickle.load(handle)
+
 # PREPROCESS TEXT
 
 stop_words = stopwords.words('english')
@@ -76,6 +77,45 @@ def cleaning(data):
     wnl = WordNetLemmatizer()
     lemma = [wnl.lemmatize(word, tag) for word, tag in wordnet_pos_tag]
     return " ".join(lemma)
+
+
+# PREDICT
+
+def my_predict(text):
+    # Tokenize text
+    text_pad_sequences = pad_sequences(tokenizer.texts_to_sequences(
+        [text]), maxlen=300)
+    # Predict
+    predict_val = float(model.predict([text_pad_sequences]))
+    recommandation = "Recommandé" if predict_val > 0.5 else "Non Recommandé"
+    score = int(predict_val*100)
+    return score, recommandation
+
+
+# HOMEPAGE ROUTE
+
+@app.route('/', methods=['GET', 'POST'])
+def homepage():
+    return render_template('index.html')
+
+
+# RECOMMANDATION ROUTE (GET and POST)
+
+@app.route('/recommandation', methods=['GET', 'POST'])
+def predict():
+
+    if request.method == 'POST':
+        if request.form['customer_feedback']:
+            customer_feedback = str(request.form['customer_feedback'])
+            clean_comment = cleaning(customer_feedback)
+
+            score, recommandation = my_predict(clean_comment)
+
+            return render_template('recommandation.html', text=customer_feedback, recommandation=recommandation, score=f"Note estimée : {score}/100")
+
+    else:
+        return render_template('recommandation.html')
+
 
 if __name__ == '__main__':  # faire run l'application
     app.run(debug=True, use_debugger=True)
