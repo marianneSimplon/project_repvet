@@ -146,15 +146,3 @@ def predict():
     else:
         return render_template('recommandation.html', name=current_user.name)
 
-# DOWNLOAD DATABASE ROUTE (GET and POST)
-
-
-@main.route('/getRepVetCSV', methods=['GET', 'POST'])
-@login_required
-def repvet_csv():
-    return send_file(os.path.join(
-        os.getcwd(), 'prediction_extractions', 'repvet.csv'),
-        mimetype='text/csv',
-        download_name='repvet.csv',
-        as_attachment=True
-    )
