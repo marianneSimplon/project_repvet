@@ -43,7 +43,39 @@ TOKENIZER_PATH = os.path.join(os.getcwd(), 'models',
                               TOKENIZER_VERSION)  # path vers le tokenizer
 with open(TOKENIZER_PATH, 'rb') as handle:
     tokenizer = pickle.load(handle)
+# PREPROCESS TEXT
 
+stop_words = stopwords.words('english')
+
+
+def get_wordnet_pos(tag):
+    if tag.startswith('J'):
+        return wn.ADJ
+    elif tag.startswith('V'):
+        return wn.VERB
+    elif tag.startswith('N'):
+        return wn.NOUN
+    elif tag.startswith('R'):
+        return wn.ADV
+    else:
+        return wn.NOUN
+
+
+def cleaning(data):
+    # 1. Tokenize
+    text_tokens = word_tokenize(data.replace("'", "").lower())
+    # 2. Remove Puncs
+    tokens_without_punc = [w for w in text_tokens if w.isalpha()]
+    # 3. Removing Stopwords
+    tokens_without_sw = [t for t in tokens_without_punc if t not in stop_words]
+    # 4. Lemmatize
+    POS_tagging = pos_tag(tokens_without_sw)
+    wordnet_pos_tag = []
+    wordnet_pos_tag = [(word, get_wordnet_pos(pos_tag))
+                       for (word, pos_tag) in POS_tagging]
+    wnl = WordNetLemmatizer()
+    lemma = [wnl.lemmatize(word, tag) for word, tag in wordnet_pos_tag]
+    return " ".join(lemma)
 
 if __name__ == '__main__':  # faire run l'application
     app.run(debug=True, use_debugger=True)
