@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="app-heading">Prédire la réputation d'un vêtement</h1>
+        <p class="lead"> Découvrez ce que pensent les clients de vos produits avec RepVet.</p>
+        <p class="lead"> Est-ce qu'ils les recommendent ?</p>
+        <p class="lead">
+          <a href="{{ url_for('main.predict') }}" class="btn btn-secondary btn-block">Découvrir la réputation d'un produit</a>
+        </p>
+{% endblock %}
